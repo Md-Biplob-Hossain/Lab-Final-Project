@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_illustrations.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/custom_rounded_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -17,7 +17,12 @@ class WelcomeScreen extends StatelessWidget {
               const Spacer(),
 
               // Top Centered Decorative Illustration
-              const WelcomeIllustration(height: 240),
+              SvgPicture.asset(
+                'assets/images/welcome_illustration.svg',
+                height: 200,
+                fit: BoxFit.contain,
+                placeholderBuilder: (BuildContext context) => const Icon(Icons.quiz, size: 100),
+              ),
 
               const SizedBox(height: 32),
 

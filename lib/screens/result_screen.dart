@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
-import '../widgets/custom_illustrations.dart';
 import '../widgets/custom_rounded_button.dart';
 import '../widgets/score_badge.dart';
 
@@ -39,11 +39,21 @@ class ResultScreen extends StatelessWidget {
               children: [
                 const Spacer(),
 
-                // Top Illustration matching Figma (Confetti if passed, Config if failed)
+                // Top SVG Illustration (Success if passed, Retry if failed)
                 if (isPassed)
-                  const ConfettiIllustration(height: 180)
+                  SvgPicture.asset(
+                    'assets/images/success_illustration.svg',
+                    height: 200,
+                    fit: BoxFit.contain,
+                    placeholderBuilder: (BuildContext context) => const Icon(Icons.celebration, size: 100),
+                  )
                 else
-                  const ConfigIllustration(height: 140),
+                  SvgPicture.asset(
+                    'assets/images/retry_illustration.svg',
+                    height: 200,
+                    fit: BoxFit.contain,
+                    placeholderBuilder: (BuildContext context) => const Icon(Icons.replay, size: 100),
+                  ),
 
                 const SizedBox(height: 24),
 

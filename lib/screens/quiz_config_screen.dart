@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
-import '../widgets/custom_illustrations.dart';
 import '../widgets/custom_rounded_button.dart';
 
 class QuizConfigScreen extends StatefulWidget {
@@ -136,8 +136,13 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Small Decorative Illustration matching Figma
-              const ConfigIllustration(height: 120),
+              // Small Decorative SVG Illustration
+              SvgPicture.asset(
+                'assets/images/config_illustration.svg',
+                height: 180,
+                fit: BoxFit.contain,
+                placeholderBuilder: (BuildContext context) => const Icon(Icons.settings, size: 100),
+              ),
 
               const SizedBox(height: 16),
 
