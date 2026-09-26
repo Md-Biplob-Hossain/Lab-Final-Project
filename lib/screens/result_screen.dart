@@ -20,8 +20,30 @@ class ResultScreen extends StatelessWidget {
     final score = quizProvider.score;
     final total = quizProvider.totalQuestions;
     final percentage = total > 0 ? ((score / total) * 100).round() : 0;
-    final isPassed = percentage >= 50;
     final totalTime = quizProvider.totalElapsedSeconds;
+
+    // 3-tier scoring logic
+    final String illustrationAsset;
+    final IconData illustrationFallbackIcon;
+    final String title;
+    final String feedbackMessage;
+
+    if (percentage >= 80) {
+      illustrationAsset = 'assets/images/success_illustration.svg';
+      illustrationFallbackIcon = Icons.celebration;
+      title = 'Congratulation';
+      feedbackMessage = "You've got a great foundation. Ready to try a different category?";
+    } else if (percentage >= 50) {
+      illustrationAsset = 'assets/images/success_illustration.svg';
+      illustrationFallbackIcon = Icons.celebration;
+      title = 'Good Job!';
+      feedbackMessage = "Nice work! A bit more practice and you'll master this category.";
+    } else {
+      illustrationAsset = 'assets/images/retry_illustration.svg';
+      illustrationFallbackIcon = Icons.replay;
+      title = 'Keep Trying!';
+      feedbackMessage = "Don't give up! Practice makes perfect. Try again to improve your score";
+    }
 
     return PopScope(
       canPop: false,
@@ -33,114 +55,117 @@ class ResultScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16.0),
-            child: Column(
-              children: [
-                const Spacer(),
-
-                // Top SVG Illustration (Success if passed, Retry if failed)
-                if (isPassed)
-                  SvgPicture.asset(
-                    'assets/images/success_illustration.svg',
-                    height: 200,
-                    fit: BoxFit.contain,
-                    placeholderBuilder: (BuildContext context) => const Icon(Icons.celebration, size: 100),
-                  )
-                else
-                  SvgPicture.asset(
-                    'assets/images/retry_illustration.svg',
-                    height: 200,
-                    fit: BoxFit.contain,
-                    placeholderBuilder: (BuildContext context) => const Icon(Icons.replay, size: 100),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16.0),
+                      child: Column(
+                        children: [
+                          const Spacer(),
 
-                const SizedBox(height: 24),
+                          // Top SVG Illustration (tier-based)
+                          SvgPicture.asset(
+                            illustrationAsset,
+                            height: 270,
+                            fit: BoxFit.contain,
+                            placeholderBuilder: (BuildContext context) => Icon(illustrationFallbackIcon, size: 100),
+                          ),
 
-                // Title
-                Text(
-                  isPassed ? 'Congratulation' : 'Keep Trying!',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
-                  ),
-                ),
+                          const SizedBox(height: 24),
 
-                const SizedBox(height: 20),
+                          // Title
+                          Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2C3E50),
+                            ),
+                          ),
 
-                // Score Badge Pill (80%, 33%, etc.)
-                ScoreBadge(percentage: percentage),
+                          const SizedBox(height: 20),
 
-                const SizedBox(height: 24),
+                          // Score Badge Pill (80%, 33%, etc.)
+                          ScoreBadge(percentage: percentage),
 
-                // Feedback Message matching Figma
-                Text(
-                  isPassed
-                      ? "You've got a great foundation. Ready to try a different category?"
-                      : "Don't give up! Practice makes perfect. Try again to improve your score",
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
-                    height: 1.4,
-                  ),
-                ),
+                          const SizedBox(height: 24),
 
-                const SizedBox(height: 28),
+                          // Feedback Message
+                          Text(
+                            feedbackMessage,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                              height: 1.4,
+                            ),
+                          ),
 
-                // Quick Stats Row (Correct, Accuracy, Time)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _StatTile(
-                        label: 'Correct',
-                        value: '$score / $total',
-                        icon: Icons.check_circle_outline_rounded,
-                        color: const Color(0xFF4CAF50),
+                          const SizedBox(height: 28),
+
+                          // Quick Stats Row (Correct, Accuracy, Time)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _StatTile(
+                                  label: 'Correct',
+                                  value: '$score / $total',
+                                  icon: Icons.check_circle_outline_rounded,
+                                  color: const Color(0xFF4CAF50),
+                                ),
+                                Container(height: 36, width: 1, color: const Color(0xFFCBD5E1)),
+                                _StatTile(
+                                  label: 'Accuracy',
+                                  value: '$percentage%',
+                                  icon: Icons.pie_chart_outline_rounded,
+                                  color: const Color(0xFF2196F3),
+                                ),
+                                Container(height: 36, width: 1, color: const Color(0xFFCBD5E1)),
+                                _StatTile(
+                                  label: 'Time Taken',
+                                  value: _formatTime(totalTime),
+                                  icon: Icons.timer_outlined,
+                                  color: const Color(0xFFFF9800),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          // Bottom Button "PLAY AGAIN"
+                          CustomRoundedButton(
+                            text: 'PLAY AGAIN',
+                            color: const Color(0xFF0F4C4C),
+                            onPressed: () {
+                              quizProvider.resetQuiz();
+                              Navigator.popUntil(context, ModalRoute.withName('/categories'));
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+                        ],
                       ),
-                      Container(height: 36, width: 1, color: const Color(0xFFCBD5E1)),
-                      _StatTile(
-                        label: 'Accuracy',
-                        value: '$percentage%',
-                        icon: Icons.pie_chart_outline_rounded,
-                        color: const Color(0xFF2196F3),
-                      ),
-                      Container(height: 36, width: 1, color: const Color(0xFFCBD5E1)),
-                      _StatTile(
-                        label: 'Time Taken',
-                        value: _formatTime(totalTime),
-                        icon: Icons.timer_outlined,
-                        color: const Color(0xFFFF9800),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-
-                const Spacer(),
-
-                // Bottom Button "PLAY AGAIN"
-                CustomRoundedButton(
-                  text: 'PLAY AGAIN',
-                  color: const Color(0xFF0F4C4C),
-                  onPressed: () {
-                    quizProvider.resetQuiz();
-                    Navigator.popUntil(context, ModalRoute.withName('/categories'));
-                  },
-                ),
-
-                const SizedBox(height: 16),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

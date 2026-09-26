@@ -139,7 +139,7 @@ class _QuizConfigScreenState extends State<QuizConfigScreen> {
               // Small Decorative SVG Illustration
               SvgPicture.asset(
                 'assets/images/config_illustration.svg',
-                height: 180,
+                height: 230,
                 fit: BoxFit.contain,
                 placeholderBuilder: (BuildContext context) => const Icon(Icons.settings, size: 100),
               ),

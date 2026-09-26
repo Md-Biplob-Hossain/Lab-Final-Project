@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/category_model.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -21,6 +22,83 @@ class CategoryCard extends StatelessWidget {
     required this.index,
     required this.onTap,
   });
+
+  String? _getCategorySvgPath(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('general knowledge')) {
+      return 'assets/images/categories/general_knowledge.svg';
+    }
+    if (lower.contains('book')) {
+      return 'assets/images/categories/books.svg';
+    }
+    if (lower.contains('film')) {
+      return 'assets/images/categories/film.svg';
+    }
+    if (lower.contains('music') && (lower.contains('theatre') || lower.contains('musical'))) {
+      return 'assets/images/categories/musicals_theatres.svg';
+    }
+    if (lower.contains('music')) {
+      return 'assets/images/categories/music.svg';
+    }
+    if (lower.contains('television')) {
+      return 'assets/images/categories/television.svg';
+    }
+    if (lower.contains('video game')) {
+      return 'assets/images/categories/video_games.svg';
+    }
+    if (lower.contains('board game')) {
+      return 'assets/images/categories/board_games.svg';
+    }
+    if (lower.contains('science') && lower.contains('computer')) {
+      return 'assets/images/categories/computers.svg';
+    }
+    if (lower.contains('science') && lower.contains('math')) {
+      return 'assets/images/categories/mathematics.svg';
+    }
+    if (lower.contains('science') || lower.contains('nature')) {
+      return 'assets/images/categories/science.svg';
+    }
+    if (lower.contains('mytholog')) {
+      return 'assets/images/categories/mythology.svg';
+    }
+    if (lower.contains('sport')) {
+      return 'assets/images/categories/sports.svg';
+    }
+    if (lower.contains('geograph')) {
+      return 'assets/images/categories/geography.svg';
+    }
+    if (lower.contains('history')) {
+      return 'assets/images/categories/history.svg';
+    }
+    if (lower.contains('politic')) {
+      return 'assets/images/categories/politics.svg';
+    }
+    if (lower.contains('art')) {
+      return 'assets/images/categories/art.svg';
+    }
+    if (lower.contains('celebrit')) {
+      return 'assets/images/categories/celebrities.svg';
+    }
+    if (lower.contains('animal')) {
+      return 'assets/images/categories/animals.svg';
+    }
+    if (lower.contains('vehicle')) {
+      return 'assets/images/categories/vehicles.svg';
+    }
+    if (lower.contains('comic')) {
+      return 'assets/images/categories/comics.svg';
+    }
+    if (lower.contains('gadget')) {
+      return 'assets/images/categories/gadgets.svg';
+    }
+    if (lower.contains('anime') || lower.contains('manga')) {
+      return 'assets/images/categories/anime_manga.svg';
+    }
+    if (lower.contains('cartoon') || lower.contains('animation')) {
+      return 'assets/images/categories/cartoon_animations.svg';
+    }
+    return null;
+  }
 
   IconData _getCategoryIcon(String name) {
     final lower = name.toLowerCase();
@@ -51,6 +129,47 @@ class CategoryCard extends StatelessWidget {
     return Icons.category_rounded;
   }
 
+  Widget _buildIllustration(String name, IconData fallbackIcon) {
+    final svgPath = _getCategorySvgPath(name);
+
+    Widget buildFallbackIcon() {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final size = constraints.maxHeight * 0.6;
+          return Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.5),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              fallbackIcon,
+              size: size * 0.55,
+              color: const Color(0xFF2C3E50),
+            ),
+          );
+        },
+      );
+    }
+
+    if (svgPath == null) {
+      return buildFallbackIcon();
+    }
+
+    return Transform.scale(
+      scale: 1.3,
+      child: SvgPicture.asset(
+        svgPath,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) => buildFallbackIcon(),
+        errorBuilder: (context, error, stackTrace) => buildFallbackIcon(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgColor = pastelPalette[index % pastelPalette.length];
@@ -76,41 +195,43 @@ class CategoryCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Icon container
-                  Align(
-                    alignment: Alignment.topCenter,
+                  // Upper 80-85% area for large edge-to-edge illustration
+                  Expanded(
+                    flex: 8,
                     child: Container(
-                      width: 64,
-                      height: 64,
-                      margin: const EdgeInsets.only(top: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        iconData,
-                        size: 36,
-                        color: const Color(0xFF2C3E50),
-                      ),
+                      width: double.infinity,
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.center,
+                      child: _buildIllustration(category.name, iconData),
                     ),
                   ),
 
-                  // Category Name
-                  Text(
-                    category.name.replaceAll('Entertainment: ', '').replaceAll('Science: ', ''),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
-                      height: 1.2,
+                  // Bottom 15-20% strip for category title
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 8.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          category.name
+                              .replaceAll('Entertainment: ', '')
+                              .replaceAll('Science: ', ''),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                            height: 1.1,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -122,3 +243,6 @@ class CategoryCard extends StatelessWidget {
     );
   }
 }
+
+
+
